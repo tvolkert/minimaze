@@ -1,59 +1,61 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:window_size/window_size.dart';
+import 'package:audioplayers/audioplayers.dart' as audioPlayerPlugin;
+import 'package:window_size/window_size.dart' as windowSizePlugin;
 
-const double _tileSize = 24;
+const List<List<String>> boardLayout = [
+  ['b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+  ['b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b'],
+  ['b', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'p', 'b'],
+  ['b', 'p', 'p', 'b', 'p', 'b', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'b'],
+  ['b', 'p', 'b', 'b', 'p', 'b', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'w', 'p', 'p', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b'],
+  ['b', 'p', 'b', 'p', 'p', 'p', 'b', 'w', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'b'],
+  ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b'],
+  ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b'],
+  ['b', 'p', 'b', 'b', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+  ['b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b'],
+  ['b', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b'],
+  ['b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b'],
+  ['b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'b'],
+  ['b', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b'],
+  ['b', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'p', 'b'],
+  ['b', 'p', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'b'],
+  ['b', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'b'],
+  ['b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+  ['b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'b'],
+  ['b', 'p', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
+  ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
+  ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
+  ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'b', 'p', 'b', 'b', 'p', 'p', 'p', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
+  ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
+  ['b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'b', 'b', 'p', 'b', 'b', 'p', 'b'],
+  ['b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'p', 'p', 'b', 'b', 'p', 'b'],
+  ['b', 'p', 'b', 'p', 'p', 'p', 'b', 'b', 'b', 'w', 'w', 'w', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
+  ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'w', 'w', 'w', 'w', 'w', 'w', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'p', 'b'],
+  ['b', 'p', 'p', 'p', 'b', 'p', 'p', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'b', 'p', 'b'],
+  ['b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'c', 'b'],
+];
 
 void main() async {
-  double windowSize = _tileSize * 30;
   WidgetsFlutterBinding.ensureInitialized();
-  setWindowFrame(Rect.fromLTWH(0, 0, windowSize, windowSize + 50));
-  setWindowMaxSize(Size(windowSize, windowSize + 50));
-  setWindowMinSize(Size(windowSize, windowSize + 50));
-  await Future.delayed(const Duration(milliseconds: 50));
-  runApp(MyApp(tileSize: _tileSize));
+
+  Size windowSize = Size.square(Tile.size * boardLayout.length);
+  Size frameSize = windowSize + const Offset(0, 50);
+  windowSizePlugin.setWindowFrame(Offset.zero & frameSize);
+  windowSizePlugin.setWindowMaxSize(frameSize);
+  windowSizePlugin.setWindowMinSize(frameSize);
+  await Future.delayed(const Duration(milliseconds: 0));
+  runApp(const MyApp());
+
+  final audioPlayerPlugin.AudioPlayer player = audioPlayerPlugin.AudioPlayer();
+  await player.setReleaseMode(audioPlayerPlugin.ReleaseMode.loop);
+  player.play(audioPlayerPlugin.AssetSource('sounds/background.mp3'));
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({Key? key, required this.tileSize}) : super(key: key);
-
-  final double tileSize;
-
-  List<List<String>> boardLayout = [
-    ['b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
-    ['b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b'],
-    ['b', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'p', 'b'],
-    ['b', 'p', 'p', 'b', 'p', 'b', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'b'],
-    ['b', 'p', 'b', 'b', 'p', 'b', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'w', 'p', 'p', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b'],
-    ['b', 'p', 'b', 'p', 'p', 'p', 'b', 'w', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'b'],
-    ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b'],
-    ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b'],
-    ['b', 'p', 'b', 'b', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
-    ['b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b'],
-    ['b', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b'],
-    ['b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b'],
-    ['b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'b'],
-    ['b', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b'],
-    ['b', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'p', 'b'],
-    ['b', 'p', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'b'],
-    ['b', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'b'],
-    ['b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
-    ['b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'b'],
-    ['b', 'p', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
-    ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
-    ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
-    ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'b', 'p', 'b', 'b', 'p', 'p', 'p', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
-    ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
-    ['b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'b', 'b', 'p', 'b', 'b', 'p', 'b'],
-    ['b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'p', 'p', 'b', 'b', 'p', 'b'],
-    ['b', 'p', 'b', 'p', 'p', 'p', 'b', 'b', 'b', 'w', 'w', 'w', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
-    ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'w', 'w', 'w', 'w', 'w', 'w', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'p', 'b'],
-    ['b', 'p', 'p', 'p', 'b', 'p', 'p', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'b', 'p', 'b'],
-    ['b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'c', 'b'],
-  ];
+  const MyApp({Key? key}) : super(key: key);
 
   Widget _buildRow(BuildContext context, int numCol, int numBoxPerCol) {
     List<Widget> children = [];
@@ -90,8 +92,8 @@ class MyApp extends StatelessWidget {
       default:
     }
     return SizedBox(
-      width: tileSize,
-      height: tileSize,
+      width: Tile.size,
+      height: Tile.size,
       child: ColoredBox(
         color: const Color.fromARGB(255, 255, 219, 174),
         child: DecoratedBox(
@@ -109,8 +111,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    MediaQueryData data = MediaQueryData.fromWindow(WidgetsBinding.instance.window);
-
     return Directionality(
       textDirection: TextDirection.ltr,
       child: _buildRow(context, 30, 30),
@@ -119,6 +119,8 @@ class MyApp extends StatelessWidget {
 }
 
 abstract class Tile {
+  static const double size = 24;
+
   Widget build(BuildContext context);
 }
 
