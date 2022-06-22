@@ -1,115 +1,151 @@
-import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
-void main() {
-  runApp(const MyApp());
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
+import 'package:window_size/window_size.dart';
+
+const double _tileSize = 24;
+
+void main() async {
+  double windowSize = _tileSize * 30;
+  WidgetsFlutterBinding.ensureInitialized();
+  setWindowFrame(Rect.fromLTWH(0, 0, windowSize, windowSize + 50));
+  setWindowMaxSize(Size(windowSize, windowSize + 50));
+  setWindowMinSize(Size(windowSize, windowSize + 50));
+  await Future.delayed(const Duration(milliseconds: 50));
+  runApp(MyApp(tileSize: _tileSize));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  MyApp({Key? key, required this.tileSize}) : super(key: key);
 
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
+  final double tileSize;
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  List<List<String>> boardLayout = [
+    ['b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+    ['b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b'],
+    ['b', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'p', 'b'],
+    ['b', 'p', 'p', 'b', 'p', 'b', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'b'],
+    ['b', 'p', 'b', 'b', 'p', 'b', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'w', 'p', 'p', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b'],
+    ['b', 'p', 'b', 'p', 'p', 'p', 'b', 'w', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'b'],
+    ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b'],
+    ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b'],
+    ['b', 'p', 'b', 'b', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+    ['b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b'],
+    ['b', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b'],
+    ['b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b'],
+    ['b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'b'],
+    ['b', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b'],
+    ['b', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'p', 'b'],
+    ['b', 'p', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'b'],
+    ['b', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'b'],
+    ['b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+    ['b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'b'],
+    ['b', 'p', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
+    ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
+    ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
+    ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'p', 'b', 'p', 'b', 'b', 'p', 'p', 'p', 'b', 'b', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
+    ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
+    ['b', 'p', 'p', 'p', 'b', 'p', 'p', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'p', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'b', 'b', 'p', 'b', 'b', 'p', 'b'],
+    ['b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'p', 'p', 'b', 'b', 'p', 'b'],
+    ['b', 'p', 'b', 'p', 'p', 'p', 'b', 'b', 'b', 'w', 'w', 'w', 'b', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'p', 'b', 'b', 'p', 'b'],
+    ['b', 'p', 'b', 'p', 'b', 'p', 'b', 'b', 'w', 'w', 'w', 'w', 'w', 'w', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'p', 'b', 'b', 'p', 'b'],
+    ['b', 'p', 'p', 'p', 'b', 'p', 'p', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'b', 'b', 'p', 'b'],
+    ['b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'c', 'b'],
+  ];
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+  Widget _buildRow(BuildContext context, int numCol, int numBoxPerCol) {
+    List<Widget> children = [];
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+    for (int col = 0; col < numCol; col++) {
+      children.add(_buildCol(context, col, numBoxPerCol));
+    }
+    return Row(children: children);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+  Widget _buildCol(BuildContext context, int col, int numBoxes) {
+    List<Widget> children = [];
+    math.Random random = math.Random();
+
+    for (int row = 0; row < numBoxes; row++) {
+      Color color = Color.fromARGB(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
+      children.add(_buildBox(context, color, boardLayout[row][col]));
+    }
+    return Column(children: children);
+  }
+
+  Widget _buildBox(BuildContext context, Color myColor, String value) {
+    Tile? tile;
+    switch (value) {
+      case 'b':
+        tile = Bush();
+        break;
+      case 'w':
+        tile = Water();
+        break;
+      case 'c':
+        tile = Castle();
+        break;
+      default:
+    }
+    return SizedBox(
+      width: tileSize,
+      height: tileSize,
+      child: ColoredBox(
+        color: const Color.fromARGB(255, 255, 219, 174),
+        child: DecoratedBox(
+          decoration: const BoxDecoration(border: Border.fromBorderSide(BorderSide(width: 1))),
+          child: Padding(
+            padding: const EdgeInsets.all(1),
+            child: Center(
+              child: tile?.build(context),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      )
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    MediaQueryData data = MediaQueryData.fromWindow(WidgetsBinding.instance.window);
+
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: _buildRow(context, 30, 30),
+    );
+  }
+}
+
+abstract class Tile {
+  Widget build(BuildContext context);
+}
+
+class Bush extends Tile {
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset('assets/images/bush.gif', width: 22, height: 22);
+  }
+}
+
+class Path extends Tile {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+class Water extends Tile {
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset('assets/images/water.gif', width: 22, height: 22);
+  }
+}
+
+class Castle extends Tile {
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset('assets/images/castle.gif', width: 22, height: 22);
   }
 }
